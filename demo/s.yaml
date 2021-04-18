@@ -1,0 +1,12 @@
+edition: 1.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: fnfApp            #  项目名称
+access: default  #  秘钥别名
+
+services:
+  fnf-test: #  服务名称
+    component:  devsapp/fnf
+    props:
+      region: cn-hangzhou
+      name: test
+      description: Description
+      definition: ./flow.yaml
