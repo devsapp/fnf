@@ -1,0 +1,72 @@
+Type: Component
+Name: fnf
+Provider:
+  - 阿里云
+Version: 0.0.1
+Description: 快速部署阿里云 FNF（Serverless Workflow） 项目
+HomePage: https://www.aliyun.com
+Tags:
+  - FNF
+Category: 基础云服务
+Service:
+  其它:
+    Authorities: #权限描述
+      - FNF 全部权限
+Commands: # 指令，格式为指令：指令描述，例如：
+  deploy: 创建FNF
+  remove: 删除FNF
+  schedule: 定时调度相关操作
+  execution: 流程相关操作
+Properties:
+  region:
+    Description: 地域
+    Required: true
+    Type:
+      - Enum:
+          - cn-beijing
+          - cn-hangzhou
+          - cn-shanghai
+          - cn-qingdao
+          - cn-zhangjiakou
+          - cn-huhehaote
+          - cn-shenzhen
+          - cn-chengdu
+          - cn-hongkong
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-southeast-3
+          - ap-southeast-5
+          - ap-northeast-1
+          - eu-central-1
+          - eu-west-1
+          - us-west-1
+          - us-east-1
+          - ap-south-1
+  name:
+    Description: Workflow 名字
+    Required: true
+    Type:
+      - String
+  description:
+    Description: Workflow 描述
+    Required: true
+    Type:
+      - String
+  type:
+    Description: 创建流程的类型，取值：FDL。
+    Required: true
+    Default: FDL
+    Type:
+      - Enum:
+          - FDL
+  definition:
+    Description: Definition 本地路径
+    Required: true
+    Type:
+      - String
+  roleArn:
+    Description: 可选参数，流程执行所需的资源描述符信息，用于在任务执行时 FnF 进行 assume role。
+    Required: false
+    Example: acs:ram:${region}:${accountID}:${role}
+    Type:
+      - String
