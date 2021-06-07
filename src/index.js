@@ -1128,7 +1128,7 @@ class MyComponent extends Component {
             },
                 {
                     header: 'Examples',
-                    optionList: [
+                    content: [
                         {
                             desc: 'add',
                             example: 'Create a scheduled schedule.'
