@@ -655,7 +655,7 @@ class MyComponent extends Component {
                 content: `s ${inputs.Project.ProjectName} execution [command]`
             },
                 {
-                    header: 'Commdans',
+                    header: 'Examples',
                     content: [
                         {
                             desc: 'list',

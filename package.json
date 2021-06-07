@@ -1,6 +1,6 @@
 {
   "name": "ServerlessComponent",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "main": "./src/index.js",
   "scripts": {
     "publish": "npm install --production"
