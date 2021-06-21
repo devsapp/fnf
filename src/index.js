@@ -22,11 +22,11 @@ const defaultOpt = {
 
 
 class MyComponent extends Component {
-    async getClient(credentials) {
+    async getClient(credentials, region) {
         return new Core({
             accessKeyId: credentials.AccessKeyID,
             accessKeySecret: credentials.AccessKeySecret,
-            endpoint: 'https://cn-hangzhou.fnf.aliyuncs.com',
+            endpoint: 'https://' + region + '.fnf.aliyuncs.com',
             apiVersion: '2019-03-15'
         })
     }
@@ -38,11 +38,44 @@ class MyComponent extends Component {
             alias: {help: 'h'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.Project.ProjectName} deploy [command]`
-            }]);
+            }, {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'definition',
+                        description: 'Template path.',
+                        alias: 'd',
+                        type: String,
+                    },
+                    {
+                        name: 'description',
+                        description: 'Stack description.',
+                        type: String,
+                    },
+                    {
+                        name: 'type',
+                        description: 'The type of the creation process. The value is FDL.',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -54,18 +87,18 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-
-        const client = await this.getClient(credential)
-
         await this.init()
+        this.state = this.state || {}
 
-        log.log("Start deploy workflow ... ")
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
-        const name = inputs.props.name
-        const region = inputs.props.region || "cn-hangzhou"
-        const definition = inputs.props.definition
-        const description = inputs.props.description || "Create By Serverless Devs"
-        const type = inputs.props.type || "FDL"
+        log.info("Start deploy workflow ... ")
+
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const definition = comParse.data.definition || comParse.data.d || inputs.props.definition
+        const description = comParse.data.description || inputs.props.description || "Create By Serverless Devs"
+        const type = comParse.data.type || inputs.props.type || "FDL"
 
         if (this.state && this.state.RegionId) {
             if (region != this.state.RegionId || name != this.state.Name) {
@@ -95,14 +128,14 @@ class MyComponent extends Component {
             "Name": name,
             "Description": description,
             "Type": type,
-            "Definition": fs.readFileSync(definition, 'utf-8')
+            "Definition": await fs.readFileSync(definition, 'utf-8')
         }
         if (inputs.props.roleArn) {
             body.RoleArn = inputs.props.roleArn
         }
 
         try {
-            log.log(`Check workflow ${name} ... `)
+            log.info(`Check workflow ${name} ... `)
             await new Promise((resolve, reject) => {
                 client.request('DescribeFlow', {
                     "RegionId": region,
@@ -113,7 +146,7 @@ class MyComponent extends Component {
                     reject(ex)
                 })
             })
-            log.log(`Update workflow ${name} ... `)
+            log.info(`Update workflow ${name} ... `)
             await new Promise((resolve, reject) => {
                 client.request('UpdateFlow', body, defaultOpt).then((result) => {
                     resolve(result);
@@ -122,7 +155,7 @@ class MyComponent extends Component {
                 })
             })
         } catch (e) {
-            log.log(`Create workflow ${name} ... `)
+            log.info(`Create workflow ${name} ... `)
             if (String(e).includes('does not exist')) {
                 await new Promise((resolve, reject) => {
                     client.request('CreateFlow', body, defaultOpt).then((result) => {
@@ -136,12 +169,88 @@ class MyComponent extends Component {
             }
         }
 
-        log.log(`Deployed workflow ${name} ... `)
+        log.info(`Deployed workflow ${name} ... `)
 
         this.state = result
         await this.save()
 
         return result
+    }
+
+    async list(inputs) {
+
+        const apts = {
+            boolean: ['help'],
+            alias: {help: 'h'},
+        };
+        const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
+        if (comParse.data && comParse.data.help) {
+            help([{
+                header: 'Usage',
+                content: `s ${inputs.Project.ProjectName} remove [command]`
+            }, {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    }
+                ],
+            }]);
+            return;
+        }
+
+        await this.init()
+        this.state = this.state || {}
+
+        // 获取密钥信息
+        const credential = await getCredential(inputs.project.access)
+        reportComponent("fnf", {
+            "commands": 'remove',
+            "uid": credential.AccountID,
+        });
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
+        await this.init()
+
+        log.info("List workflow ... ")
+
+        comParse.data = comParse.data || []
+        const flowList = []
+        let flowLength = 100
+        let nextToken = undefined
+        while (flowLength >= 100) {
+            const tempData = await new Promise((resolve, reject) => {
+                const requestBody = nextToken ? {
+                    "RegionId": region,
+                    "Limit": 100,
+                    "NextToken": nextToken,
+                } : {
+                    "RegionId": region,
+                    "Limit": 100,
+                }
+                client.request('ListFlows', requestBody, defaultOpt).then((result) => {
+                    resolve(result);
+                }, (ex) => {
+                    reject(ex)
+                })
+            })
+            flowLength = tempData.Flows ? tempData.Flows.length : []
+            for (let i = 0; i < flowLength; i++) {
+                flowList.push(tempData.Flows[i])
+            }
+            nextToken = tempData.NextToken
+        }
+
+        if(flowList.length == 0){
+            log.info("No related list was obtained.")
+        }
+
+        return flowList
+
     }
 
     async remove(inputs) {
@@ -151,10 +260,27 @@ class MyComponent extends Component {
             alias: {help: 'h'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.Project.ProjectName} remove [command]`
+            }, {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    }
+                ],
             }]);
             return;
         }
@@ -167,14 +293,17 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        await this.init()
+        this.state = this.state || {}
+
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         await this.init()
 
-        log.log("Remove workflow ... ")
+        log.info("Remove workflow ... ")
 
-        const name = inputs.props.name
-        const region = inputs.props.region || "cn-hangzhou"
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
 
         await new Promise((resolve, reject) => {
             client.request('DeleteFlow', {
@@ -201,6 +330,7 @@ class MyComponent extends Component {
             alias: {help: 'h'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -210,9 +340,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'execution-name',
                             description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'en',
+                            alias: 'e',
                             type: String,
                         },
                         {
@@ -224,7 +366,6 @@ class MyComponent extends Component {
                         {
                             name: 'input-path',
                             description: 'Input information path for this execution.',
-                            alias: 'ip',
                             type: String,
                         }
                     ],
@@ -240,16 +381,17 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
         const executionName = comParse.data['execution-name'] || comParse.data.en || undefined
         let inputBody
         const input = comParse.data.input || comParse.data.i || undefined
-        const inputPath = comParse.data['input-path'] || comParse.data.ip || undefined
+        const inputPath = comParse.data['input-path'] || undefined
         if (!input && inputPath) {
-            inputBody = fs.readFileSync(inputPath, 'utf-8')
+            inputBody = await fs.readFileSync(inputPath, 'utf-8')
         } else if (input) {
             inputBody = input
         } else {
@@ -257,8 +399,8 @@ class MyComponent extends Component {
         }
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (executionName) {
@@ -277,9 +419,11 @@ class MyComponent extends Component {
             })
         })
 
+        console.log(startExecutionResponse)
+
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             StartedTime: startExecutionResponse.StartedTime,
             ExecutionName: startExecutionResponse.Name,
         }
@@ -292,6 +436,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -301,9 +446,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'execution-name',
                             description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'en',
+                            alias: 'e',
                             type: String,
                         },
                         {
@@ -332,16 +489,18 @@ class MyComponent extends Component {
         });
 
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const executionName = comParse.data['execution-name'] || comParse.data.en || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const cause = comParse.data.cause || comParse.data.c || undefined
         const error = comParse.data.error || comParse.data.e || undefined
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (executionName) {
@@ -364,8 +523,8 @@ class MyComponent extends Component {
             })
         })
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             StartedTime: stopExecutionResponse.StartedTime,
             StoppedTime: stopExecutionResponse.StoppedTime,
             ExecutionName: stopExecutionResponse.Name,
@@ -378,9 +537,9 @@ class MyComponent extends Component {
 
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: {help: 'h', assumeYes: 'y', 'execution-name': 'en'},
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse(inputs, apts);
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -390,9 +549,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'execution-name',
                             description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'en',
+                            alias: 'e',
                             type: String,
                         },
                         {
@@ -414,15 +585,18 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const executionName = comParse.data['execution-name'] || comParse.data.en || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const waitTimeSeconds = comParse.data.wait || comParse.data.w || undefined
 
+
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (executionName) {
@@ -441,8 +615,8 @@ class MyComponent extends Component {
             })
         })
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             StartedTime: descExecutionResponse.StartedTime,
             StoppedTime: descExecutionResponse.StoppedTime,
             Status: descExecutionResponse.Status,
@@ -458,6 +632,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -469,7 +644,7 @@ class MyComponent extends Component {
                         {
                             name: 'execution-name',
                             description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'en',
+                            alias: 'e',
                             type: String,
                         },
                         {
@@ -491,16 +666,18 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const args = this.args(inputs.Args, [], []);
-        const executionName = comParse.data['execution-name'] || comParse.data.en || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const limit = comParse.data.limit || comParse.data.l || 200
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (executionName) {
@@ -520,8 +697,8 @@ class MyComponent extends Component {
         })
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             Detail: historyExecutionResponse.Events,
         }
     }
@@ -533,6 +710,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -542,9 +720,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'execution-name',
                             description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'en',
+                            alias: 'e',
                             type: String,
                         },
                         {
@@ -572,17 +762,19 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const args = this.args(inputs.Args, [], []);
-        const executionName = comParse.data['execution-name'] || comParse.data.en || undefined
+        const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const limit = comParse.data.limit || comParse.data.l || 50
         const filter = comParse.data.filter || comParse.data.f || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (executionName) {
@@ -617,8 +809,8 @@ class MyComponent extends Component {
         }
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             Detail: result,
         }
     }
@@ -630,6 +822,7 @@ class MyComponent extends Component {
             alias: {help: 'h'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
 
         if (comParse.data._.length > 0) {
             if (comParse.data._[0] == "start") {
@@ -690,6 +883,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -699,9 +893,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'schedule-mame',
                             description: 'The name of the scheduled schedule.',
-                            alias: 'sn',
+                            alias: 's',
                             type: String,
                         },
                         {
@@ -741,18 +947,20 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const cron = comParse.data.cron || comParse.data.c || undefined
-        const scheduleName = comParse.data.scheduleName || comParse.data.sn || undefined
+        const scheduleName = comParse.data.scheduleName || comParse.data.s || undefined
         const description = comParse.data.description || comParse.data.d || undefined
         const payload = comParse.data.payload || comParse.data.p || undefined
         const enable = comParse.data.enable || comParse.data.e || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (cron) {
@@ -784,8 +992,8 @@ class MyComponent extends Component {
         })
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             ScheduleName: createScheduleResponse.ScheduleName,
             ScheduleId: createScheduleResponse.ScheduleId,
             CronExpression: createScheduleResponse.CronExpression,
@@ -800,6 +1008,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -809,9 +1018,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'schedule-mame',
                             description: 'The name of the scheduled schedule.',
-                            alias: 'sn',
+                            alias: 's',
                             type: String,
                         },
                         {
@@ -851,18 +1072,20 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const cron = comParse.data.cron || comParse.data.c || undefined
-        const scheduleName = comParse.data['schedule-name'] || comParse.data.sn || undefined
+        const scheduleName = comParse.data['schedule-name'] || comParse.data.s || undefined
         const description = comParse.data.description || comParse.data.d || undefined
         const payload = comParse.data.payload || comParse.data.p || undefined
         const enable = comParse.data.enable || comParse.data.e || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": comParse.data.name || comParse.data.n || inputs.props.name
         }
 
         if (cron) {
@@ -894,8 +1117,8 @@ class MyComponent extends Component {
         })
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             ScheduleName: updateScheduleResponse.ScheduleName,
             ScheduleId: updateScheduleResponse.ScheduleId,
             CronExpression: updateScheduleResponse.CronExpression,
@@ -910,6 +1133,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -918,6 +1142,18 @@ class MyComponent extends Component {
                 {
                     header: 'Options',
                     optionList: [
+                        {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
                         {
                             name: 'limit',
                             description: 'Limit the number of returns.',
@@ -937,14 +1173,16 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const limit = comParse.data.limit || comParse.data.l || 50
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (limit) {
@@ -960,8 +1198,8 @@ class MyComponent extends Component {
         })
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             Scheduled: listScheduleResponse.Schedules
         }
     }
@@ -973,6 +1211,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -982,9 +1221,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'schedule-mame',
                             description: 'The name of the scheduled schedule.',
-                            alias: 'sn',
+                            alias: 's',
                             type: String,
                         }
                     ],
@@ -1000,14 +1251,16 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const scheduleName = comParse.data['schedule-name'] || comParse.data.sn || undefined
+        const scheduleName = comParse.data['schedule-name'] || comParse.data.s || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
 
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.nmame
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (scheduleName) {
@@ -1023,8 +1276,8 @@ class MyComponent extends Component {
         })
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             ScheduleName: scheduleName
         }
     }
@@ -1036,6 +1289,7 @@ class MyComponent extends Component {
             alias: {help: 'h', assumeYes: 'y'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
@@ -1045,9 +1299,21 @@ class MyComponent extends Component {
                     header: 'Options',
                     optionList: [
                         {
+                            name: 'region',
+                            description: 'Stack region.',
+                            alias: 'r',
+                            type: String,
+                        },
+                        {
+                            name: 'name',
+                            description: 'Stack name.',
+                            alias: 'n',
+                            type: String,
+                        },
+                        {
                             name: 'schedule-mame',
                             description: 'The name of the scheduled schedule.',
-                            alias: 'sn',
+                            alias: 's',
                             type: String,
                         }
                     ],
@@ -1064,14 +1330,15 @@ class MyComponent extends Component {
         });
 
 
-        const client = await this.getClient(credential)
+        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const scheduleName = comParse.data['schedule-name'] || comParse.data.sn || undefined
-
+        const scheduleName = comParse.data['schedule-name'] || comParse.data.s || undefined
+        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
         const body = {
-            "RegionId": inputs.props.region || "cn-hangzhou",
-            "FlowName": inputs.props.name
+            "RegionId": region,
+            "FlowName": name
         }
 
         if (scheduleName) {
@@ -1087,8 +1354,8 @@ class MyComponent extends Component {
         })
 
         return {
-            RegionId: inputs.props.region || "cn-hangzhou",
-            FlowName: inputs.props.name,
+            RegionId: region,
+            FlowName: name,
             CreatedTime: descResult.CreatedTime,
             CronExpression: descResult.CronExpression,
             LastModifiedTime: descResult.LastModifiedTime,
@@ -1104,6 +1371,7 @@ class MyComponent extends Component {
             alias: {help: 'h'},
         };
         const comParse = commandParse({args: inputs.args}, apts);
+        comParse.data = comParse.data || {}
         if (comParse.data._.length > 0) {
             if (comParse.data._[0] == "add") {
                 return await this.schedule_add(inputs)
