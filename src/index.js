@@ -5,8 +5,8 @@ const {
     getCredential,
     help,
     commandParse,
-    loadComponent,
-    reportComponent
+    load,
+    reportComponent,
 } = require('@serverless-devs/core')
 const Core = require('@alicloud/pop-core');
 const fs = require('fs')
@@ -79,6 +79,8 @@ class MyComponent extends Component {
             return;
         }
 
+        const todb = await load('devsapp/2db')
+        await todb.addHistory(inputs)
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
@@ -174,11 +176,21 @@ class MyComponent extends Component {
         this.state = result
         await this.save()
 
+
+        inputs.props = {
+            report_content: {
+                fnf: [{
+                    region: result.RegionId,
+                    name: result.Name
+                }]
+            }
+        }
+        await todb.addSource(inputs)
         return result
     }
 
     async list(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
@@ -188,7 +200,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} remove [command]`
+                content: `s ${inputs.Project.ProjectName} list [command]`
             }, {
                 header: 'Options',
                 optionList: [
@@ -209,7 +221,7 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
         reportComponent("fnf", {
-            "commands": 'remove',
+            "commands": 'list',
             "uid": credential.AccountID,
         });
         const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
@@ -245,7 +257,7 @@ class MyComponent extends Component {
             nextToken = tempData.NextToken
         }
 
-        if(flowList.length == 0){
+        if (flowList.length == 0) {
             log.info("No related list was obtained.")
         }
 
@@ -285,6 +297,9 @@ class MyComponent extends Component {
             return;
         }
 
+        const todb = await load('devsapp/2db')
+        await todb.addHistory(inputs)
+
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
@@ -319,12 +334,19 @@ class MyComponent extends Component {
         this.state = {}
         await this.save()
 
+        inputs.props = {
+            report_content: {
+                fnf: []
+            }
+        }
+        await todb.addSource(inputs)
+
         return {}
 
     }
 
     async execution_start(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
@@ -430,7 +452,7 @@ class MyComponent extends Component {
     }
 
     async execution_stop(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -534,7 +556,7 @@ class MyComponent extends Component {
     }
 
     async execution_get(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y', 'execution-name': 'en'},
@@ -626,7 +648,7 @@ class MyComponent extends Component {
     }
 
     async execution_history(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -704,7 +726,7 @@ class MyComponent extends Component {
     }
 
     async execution_list(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -816,7 +838,7 @@ class MyComponent extends Component {
     }
 
     async execution(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
@@ -877,7 +899,7 @@ class MyComponent extends Component {
     }
 
     async schedule_add(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1002,7 +1024,7 @@ class MyComponent extends Component {
     }
 
     async schedule_update(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1127,7 +1149,7 @@ class MyComponent extends Component {
     }
 
     async schedule_list(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1205,7 +1227,7 @@ class MyComponent extends Component {
     }
 
     async schedule_delete(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1283,7 +1305,7 @@ class MyComponent extends Component {
     }
 
     async schedule_get(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1365,7 +1387,7 @@ class MyComponent extends Component {
     }
 
     async schedule(inputs) {
-
+        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},

@@ -4,7 +4,7 @@ access: default  #  秘钥别名
 
 services:
   fnf-test: #  服务名称
-    component:  devsapp/fnf
+    component:  fnf
     props:
       region: cn-hangzhou
       name: test
