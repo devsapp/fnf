@@ -187,7 +187,6 @@ class MyComponent extends Component {
     }
 
     async list(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
@@ -339,7 +338,6 @@ class MyComponent extends Component {
     }
 
     async execution_start(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
@@ -445,7 +443,6 @@ class MyComponent extends Component {
     }
 
     async execution_stop(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -549,7 +546,6 @@ class MyComponent extends Component {
     }
 
     async execution_get(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y', 'execution-name': 'en'},
@@ -641,7 +637,6 @@ class MyComponent extends Component {
     }
 
     async execution_history(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -719,7 +714,6 @@ class MyComponent extends Component {
     }
 
     async execution_list(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -831,7 +825,6 @@ class MyComponent extends Component {
     }
 
     async execution(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
@@ -892,7 +885,6 @@ class MyComponent extends Component {
     }
 
     async schedule_add(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1017,7 +1009,6 @@ class MyComponent extends Component {
     }
 
     async schedule_update(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1142,7 +1133,6 @@ class MyComponent extends Component {
     }
 
     async schedule_list(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1220,7 +1210,6 @@ class MyComponent extends Component {
     }
 
     async schedule_delete(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1298,7 +1287,6 @@ class MyComponent extends Component {
     }
 
     async schedule_get(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help', 'assumeYes'],
             alias: {help: 'h', assumeYes: 'y'},
@@ -1380,7 +1368,6 @@ class MyComponent extends Component {
     }
 
     async schedule(inputs) {
-        await (await load('devsapp/2db')).addHistory(inputs)
         const apts = {
             boolean: ['help'],
             alias: {help: 'h'},
