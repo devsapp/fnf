@@ -1,45 +1,13 @@
 {
-  "name": "fnf",
+  "name": "ServerlessComponent",
   "version": "0.0.5",
   "main": "./src/index.js",
+  "scripts": {
+    "publish": "npm install --production"
+  },
   "dependencies": {
     "@serverless-devs/s-core": "^0.0.28",
     "@serverless-devs/core": "^0.0.85",
     "@alicloud/pop-core": "^1.7.10"
-  },
-  "devDependencies": {
-    "@alicloud/log": "^1.2.1",
-    "@alicloud/mns": "^1.0.0",
-    "@types/eslint": "^7.2.6",
-    "@types/jest": "^26.0.10",
-    "@types/lodash": "^4.14.171",
-    "@types/node": "14",
-    "electron": "^17.2.0",
-    "ali-oss": "^6.16.0",
-    "callsites": "^4.0.0",
-    "crypto": "^1.0.1",
-    "dotenv": "^10.0.0",
-    "esbuild": "^0.14.10",
-    "f2elint": "^0.4.4",
-    "husky": "^7.0.2",
-    "jest": "^26.4.0",
-    "promise-retry": "^2.0.1",
-    "rimraf": "^3.0.2",
-    "ts-jest": "^26.2.0",
-    "ts-loader": "^8.0.14",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.4.3"
-  },
-  "scripts": {
-    "start": "npm run dev",
-    "dev": "npm run prebuild && npx tsc -w -p tsconfig.json",
-    "prebuild": "rm -rf node_modules && rm -rf package-lock.json && npm i && rimraf dist",
-    "build": "npm run lint && npm run fix && npm run esbuild",
-    "esbuild": "esbuild src/index.js --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --external:@serverless-devs/core --outfile=dist/index.js",
-    "test-integration": "jest --testNamePattern ^Integration::",
-    "lint": "f2elint scan",
-    "fix": "f2elint fix",
-    "watch": "tsc -w",
-    "typecheck": "npx tsc -p tsconfig.json --noEmit"
   }
 }
