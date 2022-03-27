@@ -79,8 +79,6 @@ class MyComponent extends Component {
             return;
         }
 
-        const todb = await load('devsapp/2db')
-        await todb.addHistory(inputs)
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
@@ -185,7 +183,6 @@ class MyComponent extends Component {
                 }]
             }
         }
-        await todb.addSource(inputs)
         return result
     }
 
@@ -297,9 +294,6 @@ class MyComponent extends Component {
             return;
         }
 
-        const todb = await load('devsapp/2db')
-        await todb.addHistory(inputs)
-
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
@@ -339,7 +333,6 @@ class MyComponent extends Component {
                 fnf: []
             }
         }
-        await todb.addSource(inputs)
 
         return {}
 
