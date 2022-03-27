@@ -42,7 +42,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} deploy [command]`
+                content: `s ${inputs.project.projectName} deploy [command]`
             }, {
                 header: 'Options',
                 optionList: [
@@ -196,7 +196,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} list [command]`
+                content: `s ${inputs.project.projectName} list [command]`
             }, {
                 header: 'Options',
                 optionList: [
@@ -272,7 +272,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} remove [command]`
+                content: `s ${inputs.project.projectName} remove [command]`
             }, {
                 header: 'Options',
                 optionList: [
@@ -347,7 +347,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} execution start [command]`
+                content: `s ${inputs.project.projectName} execution start [command]`
             },
                 {
                     header: 'Options',
@@ -452,7 +452,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} execution stop [args]`
+                content: `s ${inputs.project.projectName} execution stop [args]`
             },
                 {
                     header: 'Options',
@@ -554,7 +554,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} execution get [args]`
+                content: `s ${inputs.project.projectName} execution get [args]`
             },
                 {
                     header: 'Options',
@@ -646,7 +646,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} execution stop [args]`
+                content: `s ${inputs.project.projectName} execution stop [args]`
             },
                 {
                     header: 'Options',
@@ -723,7 +723,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} execution stop [args]`
+                content: `s ${inputs.project.projectName} execution stop [args]`
             },
                 {
                     header: 'Options',
@@ -853,7 +853,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} execution [command]`
+                content: `s ${inputs.project.projectName} execution [command]`
             },
                 {
                     header: 'Examples',
@@ -894,7 +894,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} schedule add [args]`
+                content: `s ${inputs.project.projectName} schedule add [args]`
             },
                 {
                     header: 'Options',
@@ -1018,7 +1018,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} schedule update [args]`
+                content: `s ${inputs.project.projectName} schedule update [args]`
             },
                 {
                     header: 'Options',
@@ -1142,7 +1142,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} schedule list [args]`
+                content: `s ${inputs.project.projectName} schedule list [args]`
             },
                 {
                     header: 'Options',
@@ -1219,7 +1219,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} schedule delete [args]`
+                content: `s ${inputs.project.projectName} schedule delete [args]`
             },
                 {
                     header: 'Options',
@@ -1296,7 +1296,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `s ${inputs.Project.ProjectName} schedule get [args]`
+                content: `s ${inputs.project.projectName} schedule get [args]`
             },
                 {
                     header: 'Options',
@@ -1394,7 +1394,7 @@ class MyComponent extends Component {
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
-                content: `Usage: s ${inputs.Project.ProjectName} schedule [command]`
+                content: `Usage: s ${inputs.project.projectName} schedule [command]`
             },
                 {
                     header: 'Examples',
