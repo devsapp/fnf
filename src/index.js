@@ -88,35 +88,16 @@ class MyComponent extends Component {
         });
 
         await this.init()
-        this.state = this.state || {}
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         log.info("Start deploy workflow ... ")
 
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
         const definition = comParse.data.definition || comParse.data.d || inputs.props.definition
         const description = comParse.data.description || inputs.props.description || "Create By Serverless Devs"
         const type = comParse.data.type || inputs.props.type || "FDL"
-
-        if (this.state && this.state.RegionId) {
-            if (region != this.state.RegionId || name != this.state.Name) {
-                // remove
-                log.warn(`Try delete workflow ${this.state.Name}`)
-                await new Promise((resolve, reject) => {
-                    client.request('DeleteFlow', {
-                        "RegionId": region,
-                        "Name": this.state.Name
-                    }, defaultOpt).then((result) => {
-                        resolve(result);
-                    }, (ex) => {
-                        reject(ex)
-                    })
-                })
-                log.warn(`Deleted workflow ${this.state.Name}`)
-            }
-        }
 
         let result = {
             RegionId: region,
@@ -171,7 +152,6 @@ class MyComponent extends Component {
 
         log.info(`Deployed workflow ${name} ... `)
 
-        this.state = result
         await this.save()
 
 
@@ -212,7 +192,6 @@ class MyComponent extends Component {
         }
 
         await this.init()
-        this.state = this.state || {}
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
@@ -220,7 +199,7 @@ class MyComponent extends Component {
             "commands": 'list',
             "uid": credential.AccountID,
         });
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
         await this.init()
 
@@ -302,16 +281,15 @@ class MyComponent extends Component {
         });
 
         await this.init()
-        this.state = this.state || {}
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         await this.init()
 
         log.info("Remove workflow ... ")
 
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
 
         await new Promise((resolve, reject) => {
             client.request('DeleteFlow', {
@@ -324,7 +302,6 @@ class MyComponent extends Component {
             })
         })
 
-        this.state = {}
         await this.save()
 
         inputs.props = {
@@ -394,11 +371,11 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
         const executionName = comParse.data['execution-name'] || comParse.data.en || undefined
         let inputBody
         const input = comParse.data.input || comParse.data.i || undefined
@@ -501,11 +478,11 @@ class MyComponent extends Component {
         });
 
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
         const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const cause = comParse.data.cause || comParse.data.c || undefined
         const error = comParse.data.error || comParse.data.e || undefined
@@ -596,11 +573,11 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
         const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const waitTimeSeconds = comParse.data.wait || comParse.data.w || undefined
 
@@ -676,12 +653,12 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const args = this.args(inputs.Args, [], []);
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
         const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const limit = comParse.data.limit || comParse.data.l || 200
 
@@ -771,7 +748,7 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
@@ -779,7 +756,7 @@ class MyComponent extends Component {
         const executionName = comParse.data['execution-name'] || comParse.data.e || undefined
         const limit = comParse.data.limit || comParse.data.l || 50
         const filter = comParse.data.filter || comParse.data.f || undefined
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
 
         const body = {
             "RegionId": region,
@@ -954,7 +931,7 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
@@ -963,7 +940,7 @@ class MyComponent extends Component {
         const description = comParse.data.description || comParse.data.d || undefined
         const payload = comParse.data.payload || comParse.data.p || undefined
         const enable = comParse.data.enable || comParse.data.e || undefined
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
 
         const body = {
             "RegionId": region,
@@ -1078,7 +1055,7 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
@@ -1087,7 +1064,7 @@ class MyComponent extends Component {
         const description = comParse.data.description || comParse.data.d || undefined
         const payload = comParse.data.payload || comParse.data.p || undefined
         const enable = comParse.data.enable || comParse.data.e || undefined
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
 
         const body = {
             "RegionId": region,
@@ -1178,12 +1155,12 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const limit = comParse.data.limit || comParse.data.l || 50
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
 
         const body = {
             "RegionId": region,
@@ -1255,12 +1232,12 @@ class MyComponent extends Component {
             "uid": credential.AccountID,
         });
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const scheduleName = comParse.data['schedule-name'] || comParse.data.s || undefined
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
 
         const body = {
             "RegionId": region,
@@ -1333,12 +1310,12 @@ class MyComponent extends Component {
         });
 
 
-        const region = comParse.data.region || comParse.data.r || this.state.RegionId || inputs.props.region || "cn-hangzhou"
+        const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
         // 将Args转成Object
         const scheduleName = comParse.data['schedule-name'] || comParse.data.s || undefined
-        const name = comParse.data.name || comParse.data.n || this.state.Name || inputs.props.name
+        const name = comParse.data.name || comParse.data.n || inputs.props.name
         const body = {
             "RegionId": region,
             "FlowName": name
