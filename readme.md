@@ -20,12 +20,12 @@ steps:
 
 ## 纯命令行进行操作
 
-通过执行`s cli fnf deploy -r ch-shanghai -n mytest -d ./flow.yaml`即可进行快速的部署：
+通过执行`s cli fnf deploy -r cn-shanghai -n mytest -d ./flow.yaml`即可进行快速的部署：
 
 部署之后，可以看到返回结果：
 
 ```
-RegionId: ch-shanghai
+RegionId: cn-shanghai
 Name: mytest
 ```
 
@@ -40,7 +40,7 @@ access: aliyun-release  #  秘钥别名
 
 services:
   fnf-test: #  服务名称
-    component:  ros
+    component:  fnf
     props:
       region: cn-hangzhou
       name: test
