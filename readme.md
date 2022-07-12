@@ -40,7 +40,7 @@ access: aliyun-release  #  秘钥别名
 
 services:
   fnf-test: #  服务名称
-    component:  ros
+    component:  fnf
     props:
       region: cn-hangzhou
       name: test
