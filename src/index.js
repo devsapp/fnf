@@ -26,6 +26,7 @@ class MyComponent extends Component {
         return new Core({
             accessKeyId: credentials.AccessKeyID,
             accessKeySecret: credentials.AccessKeySecret,
+            securityToken: credentials.SecurityToken,
             endpoint: 'https://' + region + '.fnf.aliyuncs.com',
             apiVersion: '2019-03-15'
         })
