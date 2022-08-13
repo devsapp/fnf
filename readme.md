@@ -220,4 +220,4 @@ get      Get a timing schedule.
 ```
 
 
-> 更多帮助信息，可以直击通过`-h`获取，例如`s cli fnf schedule add -h`
+> 更多帮助信息，可以直接通过`-h`获取，例如`s cli fnf schedule add -h`
