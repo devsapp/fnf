@@ -58,7 +58,7 @@ services:
 | name | True | String | Workflow 名字 |
 | description | True | String | Workflow 描述 |
 | type | True | Enum | 创建流程的类型，取值：FDL。 |
-| definition | True | String | Definition 本地路径 |
+| definition | True | String | Definition 本地路径或者配置信息 |
 | roleArn | False | String | 可选参数，流程执行所需的资源描述符信息，用于在任务执行时 FnF 进行 assume role。 |
 
 # 命令使用
@@ -86,17 +86,28 @@ services:
 部署/创建一个FNF：
 
 ```
-Usage
+Deploy
 
-  s deploy [command] 
+  Deploy fnf resources 
 
 Options
 
-  -r, --region string           Stack region.                                       
-  -n, --name string             Stack name.                                         
-  -d, --definition string       Template path.                                      
-  --description string   Stack description.                                  
-  --type string                 The type of the creation process. The value is FDL. 
+  -r, --region string    [Optional] Stack region. Defaults to cn-hangzhou                 
+  -n, --name string      [Optional] Stack name.                                           
+  --definition string    [Optional] Template path.                                        
+  --description string   [Optional] Stack description.                                    
+  --type string          [Optional] The type of the creation process. Defaults to is FDL. 
+
+Global Options
+
+  --debug string          [Optional] Output debug informations   
+  -h, --help              [Optional] Help for command            
+  -t, --template string   [Optional] Specify the template file   
+  -a, --access string     [Optional] Specify key alias           
+
+Examples with Yaml
+
+  $ s deploy 
 ```
 
 如果是通过`s.yaml`进行使用：`s deploy`   
@@ -107,14 +118,25 @@ Options
 移除一个FNF：
 
 ```
-Usage
+Remove
 
-  s remove [command] 
+  Remove fnf resources 
 
 Options
 
-  -r, --region string   Stack region. 
-  -n, --name string     Stack name.
+  -r, --region string   [Optional] Stack region. Defaults to cn-hangzhou 
+  -n, --name string     [Optional] Stack name.                           
+
+Global Options
+
+  --debug string          [Optional] Output debug informations   
+  -h, --help              [Optional] Help for command            
+  -t, --template string   [Optional] Specify the template file   
+  -a, --access string     [Optional] Specify key alias           
+
+Examples with Yaml
+
+  $ s remove 
 ```
 
 如果是通过`s.yaml`进行使用：`s remove`   
@@ -125,13 +147,24 @@ Options
 查看Flow列表
 
 ```
-Usage
+List
 
-  s default remove [command] 
+  Show fnf resources 
 
 Options
 
-  -r, --region string   Stack region. 
+  -r, --region string   [Optional] Stack region. Defaults to cn-hangzhou 
+
+Global Options
+
+  --debug string          [Optional] Output debug informations   
+  -h, --help              [Optional] Help for command            
+  -t, --template string   [Optional] Specify the template file   
+  -a, --access string     [Optional] Specify key alias           
+
+Examples with Yaml
+
+  $ s list 
 ```
 
 使用方法：
@@ -212,11 +245,10 @@ history   Get the details of each step in the execution process.
 定时调度相关操作，支持的方法：
 
 ```
-add      Create a scheduled schedule. 
-update   Update a scheduled schedule. 
-list     Get scheduled schedule list. 
-delete   Delete a scheduled schedule. 
-get      Get a timing schedule.     
+deploy   Add or update schedule; help command [s schedule deploy -h] 
+remove   Remove schedule; help command [s schedule remove -h]        
+get      Get schedule config; help command [s schedule get -h]       
+list     List schedule; help command [s schedule list -h]   
 ```
 
 
