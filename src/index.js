@@ -102,7 +102,7 @@ class MyComponent extends Component {
         const definition = comParse.data.definition || comParse.data.d || inputs.props.definition
         const description = comParse.data.description || inputs.props.description || "Create By Serverless Devs"
         const type = comParse.data.type || inputs.props.type || "FDL"
-        const executionMode = comParse.data.executionMode || inputs.props.executionMode || undefined
+        const executionMode = comParse.data.executionMode || inputs.props.executionMode || "Standard"
 
         log.info(`Start deploy workflow ${name} ... `)
 
@@ -125,7 +125,7 @@ class MyComponent extends Component {
 
         try {
             log.info(`Check workflow ${name} ... `)
-            await new Promise((resolve, reject) => {
+            let flowDefinition = await new Promise((resolve, reject) => {
                 client.request('DescribeFlow', {
                     "RegionId": region,
                     "Name": name
@@ -135,6 +135,8 @@ class MyComponent extends Component {
                     reject(ex)
                 })
             })
+
+            log.info(`Flow definition: ${JSON.stringify(flowDefinition)}`)
             log.info(`Update workflow ${name} ... `)
             let response = await new Promise((resolve, reject) => {
                 client.request('UpdateFlow', body, defaultOpt).then((result) => {
