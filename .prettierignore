@@ -1,0 +1,5 @@
+node_modules/
+__test__/e2e
+dist/
+docs
+*.json

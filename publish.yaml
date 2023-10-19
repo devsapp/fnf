@@ -79,3 +79,7 @@ Properties:
     Example: acs:ram:${region}:${accountID}:${role}
     Type:
       - String
+
+  endpoint:
+    Description: 可选参数，工作流后端的 endpoint。
+    Required: false
