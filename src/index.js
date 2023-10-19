@@ -10,7 +10,7 @@ const {
 } = require('@serverless-devs/core')
 const Core = require('@alicloud/pop-core');
 const fs = require('fs')
-const {Component, Log} = require('@serverless-devs/s-core');
+const { Component, Log } = require('@serverless-devs/s-core');
 
 log = new Log()
 const defaultOpt = {
@@ -36,9 +36,9 @@ class MyComponent extends Component {
 
         const apts = {
             boolean: ['help'],
-            alias: {help: 'h'},
+            alias: { help: 'h' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
@@ -74,6 +74,11 @@ class MyComponent extends Component {
                         name: 'type',
                         description: 'The type of the creation process. The value is FDL.',
                         type: String,
+                    },
+                    {
+                        name: 'executionMode',
+                        description: 'The type of execution. The value is Standard or Express, None value is Standard by default.',
+                        type: String,
                     }
                 ],
             },]);
@@ -93,27 +98,29 @@ class MyComponent extends Component {
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
-        log.info("Start deploy workflow ... ")
-
         const name = comParse.data.name || comParse.data.n || inputs.props.name
         const definition = comParse.data.definition || comParse.data.d || inputs.props.definition
         const description = comParse.data.description || inputs.props.description || "Create By Serverless Devs"
         const type = comParse.data.type || inputs.props.type || "FDL"
+        const executionMode = comParse.data.executionMode || inputs.props.executionMode || undefined
 
-        let result = {
-            RegionId: region,
-            Name: name
-        }
+        log.info(`Start deploy workflow ${name} ... `)
 
         const body = {
             "RegionId": region,
             "Name": name,
             "Description": description,
             "Type": type,
+            "ExecutionMode": executionMode,
             "Definition": await fs.readFileSync(definition, 'utf-8')
         }
         if (inputs.props.roleArn) {
             body.RoleArn = inputs.props.roleArn
+        }
+
+        const result = {
+            RegionId: region,
+            Name: name
         }
 
         try {
@@ -129,23 +136,25 @@ class MyComponent extends Component {
                 })
             })
             log.info(`Update workflow ${name} ... `)
-            await new Promise((resolve, reject) => {
+            let response = await new Promise((resolve, reject) => {
                 client.request('UpdateFlow', body, defaultOpt).then((result) => {
                     resolve(result);
                 }, (ex) => {
                     reject(ex)
                 })
             })
+            result.Response = response
         } catch (e) {
             log.info(`Create workflow ${name} ... `)
             if (String(e).includes('does not exist')) {
-                await new Promise((resolve, reject) => {
+                let response = await new Promise((resolve, reject) => {
                     client.request('CreateFlow', body, defaultOpt).then((result) => {
                         resolve(result);
                     }, (ex) => {
                         reject(ex)
                     })
                 })
+                result.Response = response
             } else {
                 throw new Error(e)
             }
@@ -160,7 +169,8 @@ class MyComponent extends Component {
             report_content: {
                 fnf: [{
                     region: result.RegionId,
-                    name: result.Name
+                    name: result.Name,
+                    response: result.Response
                 }]
             }
         }
@@ -170,9 +180,9 @@ class MyComponent extends Component {
     async list(inputs) {
         const apts = {
             boolean: ['help'],
-            alias: {help: 'h'},
+            alias: { help: 'h' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
@@ -245,9 +255,9 @@ class MyComponent extends Component {
 
         const apts = {
             boolean: ['help'],
-            alias: {help: 'h'},
+            alias: { help: 'h' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
@@ -318,49 +328,54 @@ class MyComponent extends Component {
     async execution_start(inputs) {
         const apts = {
             boolean: ['help'],
-            alias: {help: 'h'},
+            alias: { help: 'h' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} execution start [command]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'execution-name',
-                            description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'e',
-                            type: String,
-                        },
-                        {
-                            name: 'input',
-                            description: 'Input information for this execution.',
-                            alias: 'i',
-                            type: String,
-                        },
-                        {
-                            name: 'input-path',
-                            description: 'Input information path for this execution.',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'execution-name',
+                        description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
+                        alias: 'e',
+                        type: String,
+                    },
+                    {
+                        name: 'input',
+                        description: 'Input information for this execution.',
+                        alias: 'i',
+                        type: String,
+                    },
+                    {
+                        name: 'input-path',
+                        description: 'Input information path for this execution.',
+                        type: String,
+                    },
+                    {
+                        name: 'sync',
+                        description: 'Sync start execution',
+                        type: Boolean,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -381,6 +396,7 @@ class MyComponent extends Component {
         let inputBody
         const input = comParse.data.input || comParse.data.i || undefined
         const inputPath = comParse.data['input-path'] || undefined
+        const syncInvoke = comParse.data['sync'] || false
         if (!input && inputPath) {
             inputBody = await fs.readFileSync(inputPath, 'utf-8')
         } else if (input) {
@@ -402,8 +418,13 @@ class MyComponent extends Component {
             body.Input = inputBody
         }
 
+        let methodName = "StartExecution"
+        if (syncInvoke) {
+            methodName = "StartSyncExecution"
+        }
+
         const startExecutionResponse = await new Promise((resolve, reject) => {
-            client.request('StartExecution', body, defaultOpt).then((result) => {
+            client.request(methodName, body, defaultOpt).then((result) => {
                 resolve(result);
             }, (ex) => {
                 reject(ex)
@@ -415,58 +436,60 @@ class MyComponent extends Component {
         return {
             RegionId: region,
             FlowName: name,
-            StartedTime: startExecutionResponse.StartedTime,
             ExecutionName: startExecutionResponse.Name,
+            StartedTime: startExecutionResponse.StartedTime,
+            StoppedTime: startExecutionResponse.StoppedTime,
+            Response: startExecutionResponse
         }
     }
 
     async execution_stop(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} execution stop [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'execution-name',
-                            description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'e',
-                            type: String,
-                        },
-                        {
-                            name: 'cause',
-                            description: 'Stop the error reason.',
-                            alias: 'c',
-                            type: String,
-                        },
-                        {
-                            name: 'error',
-                            description: 'Stop the error code.',
-                            alias: 'e',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'execution-name',
+                        description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
+                        alias: 'e',
+                        type: String,
+                    },
+                    {
+                        name: 'cause',
+                        description: 'Stop the error reason.',
+                        alias: 'c',
+                        type: String,
+                    },
+                    {
+                        name: 'error',
+                        description: 'Stop the error code.',
+                        alias: 'e',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -526,7 +549,7 @@ class MyComponent extends Component {
     async execution_get(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y', 'execution-name': 'en'},
+            alias: { help: 'h', assumeYes: 'y', 'execution-name': 'en' },
         };
         const comParse = commandParse(inputs, apts);
         if (comParse.data && comParse.data.help) {
@@ -534,35 +557,35 @@ class MyComponent extends Component {
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} execution get [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'execution-name',
-                            description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'e',
-                            type: String,
-                        },
-                        {
-                            name: 'wait',
-                            description: 'The longest waiting time of this describexecution request long polling. The legal values are 0 to 60, where waittimeseconds = 0 means that the request immediately returns to the current execution status; if waittimeseconds > 0, the request will be polled in the server for a long time to wait for the execution to finish, and the longest waiting time is seconds for waittimeseconds.',
-                            alias: 'w',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'execution-name',
+                        description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
+                        alias: 'e',
+                        type: String,
+                    },
+                    {
+                        name: 'wait',
+                        description: 'The longest waiting time of this describexecution request long polling. The legal values are 0 to 60, where waittimeseconds = 0 means that the request immediately returns to the current execution status; if waittimeseconds > 0, the request will be polled in the server for a long time to wait for the execution to finish, and the longest waiting time is seconds for waittimeseconds.',
+                        alias: 'w',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -617,32 +640,32 @@ class MyComponent extends Component {
     async execution_history(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} execution stop [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'execution-name',
-                            description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'e',
-                            type: String,
-                        },
-                        {
-                            name: 'limit',
-                            description: 'Number of queries.',
-                            alias: 'l',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'execution-name',
+                        description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
+                        alias: 'e',
+                        type: String,
+                    },
+                    {
+                        name: 'limit',
+                        description: 'Number of queries.',
+                        alias: 'l',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -694,50 +717,50 @@ class MyComponent extends Component {
     async execution_list(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} execution stop [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'execution-name',
-                            description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
-                            alias: 'e',
-                            type: String,
-                        },
-                        {
-                            name: 'limit',
-                            description: 'Number of queries.',
-                            alias: 'l',
-                            type: String,
-                        },
-                        {
-                            name: 'filter',
-                            description: 'The execution status of the filter you want to filter. The status supports the following fields: Running/Stopped/Succeeded/Failed/TimedOut.',
-                            alias: 'f',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'execution-name',
+                        description: 'User defined execution name. If you need to enter it, please ensure that it is unique under the process.',
+                        alias: 'e',
+                        type: String,
+                    },
+                    {
+                        name: 'limit',
+                        description: 'Number of queries.',
+                        alias: 'l',
+                        type: String,
+                    },
+                    {
+                        name: 'filter',
+                        description: 'The execution status of the filter you want to filter. The status supports the following fields: Running/Stopped/Succeeded/Failed/TimedOut.',
+                        alias: 'f',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -805,9 +828,9 @@ class MyComponent extends Component {
     async execution(inputs) {
         const apts = {
             boolean: ['help'],
-            alias: {help: 'h'},
+            alias: { help: 'h' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
 
         if (comParse.data._.length > 0) {
@@ -833,31 +856,31 @@ class MyComponent extends Component {
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} execution [command]`
             },
-                {
-                    header: 'Examples',
-                    content: [
-                        {
-                            desc: 'list',
-                            example: 'Get all historical execution under a process.'
-                        },
-                        {
-                            desc: 'get',
-                            example: 'Get the status of one execution and other information.'
-                        },
-                        {
-                            desc: 'start',
-                            example: 'Start a process execution.'
-                        },
-                        {
-                            desc: 'stop',
-                            example: 'Stop a process executione.'
-                        },
-                        {
-                            desc: 'history',
-                            example: 'Get the details of each step in the execution process.'
-                        }
-                    ],
-                },]);
+            {
+                header: 'Examples',
+                content: [
+                    {
+                        desc: 'list',
+                        example: 'Get all historical execution under a process.'
+                    },
+                    {
+                        desc: 'get',
+                        example: 'Get the status of one execution and other information.'
+                    },
+                    {
+                        desc: 'start',
+                        example: 'Start a process execution.'
+                    },
+                    {
+                        desc: 'stop',
+                        example: 'Stop a process executione.'
+                    },
+                    {
+                        desc: 'history',
+                        example: 'Get the details of each step in the execution process.'
+                    }
+                ],
+            },]);
             return;
         }
     }
@@ -865,62 +888,62 @@ class MyComponent extends Component {
     async schedule_add(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} schedule add [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'schedule-mame',
-                            description: 'The name of the scheduled schedule.',
-                            alias: 's',
-                            type: String,
-                        },
-                        {
-                            name: 'cron',
-                            description: 'Cron expression.',
-                            alias: 'c',
-                            type: String,
-                        },
-                        {
-                            name: 'description',
-                            description: 'Description of timing scheduling.',
-                            alias: 'd',
-                            type: String,
-                        },
-                        {
-                            name: 'payload',
-                            description: 'Trigger messages scheduled for timing must be in JSON format.',
-                            alias: 'p',
-                            type: String,
-                        },
-                        {
-                            name: 'enable',
-                            description: 'Whether scheduled scheduling is enabled.',
-                            alias: 'e',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'schedule-mame',
+                        description: 'The name of the scheduled schedule.',
+                        alias: 's',
+                        type: String,
+                    },
+                    {
+                        name: 'cron',
+                        description: 'Cron expression.',
+                        alias: 'c',
+                        type: String,
+                    },
+                    {
+                        name: 'description',
+                        description: 'Description of timing scheduling.',
+                        alias: 'd',
+                        type: String,
+                    },
+                    {
+                        name: 'payload',
+                        description: 'Trigger messages scheduled for timing must be in JSON format.',
+                        alias: 'p',
+                        type: String,
+                    },
+                    {
+                        name: 'enable',
+                        description: 'Whether scheduled scheduling is enabled.',
+                        alias: 'e',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -989,62 +1012,62 @@ class MyComponent extends Component {
     async schedule_update(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} schedule update [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'schedule-mame',
-                            description: 'The name of the scheduled schedule.',
-                            alias: 's',
-                            type: String,
-                        },
-                        {
-                            name: 'cron',
-                            description: 'Cron expression.',
-                            alias: 'c',
-                            type: String,
-                        },
-                        {
-                            name: 'description',
-                            description: 'Description of timing scheduling.',
-                            alias: 'd',
-                            type: String,
-                        },
-                        {
-                            name: 'payload',
-                            description: 'Trigger messages scheduled for timing must be in JSON format.',
-                            alias: 'p',
-                            type: String,
-                        },
-                        {
-                            name: 'enable',
-                            description: 'Whether scheduled scheduling is enabled.',
-                            alias: 'e',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'schedule-mame',
+                        description: 'The name of the scheduled schedule.',
+                        alias: 's',
+                        type: String,
+                    },
+                    {
+                        name: 'cron',
+                        description: 'Cron expression.',
+                        alias: 'c',
+                        type: String,
+                    },
+                    {
+                        name: 'description',
+                        description: 'Description of timing scheduling.',
+                        alias: 'd',
+                        type: String,
+                    },
+                    {
+                        name: 'payload',
+                        description: 'Trigger messages scheduled for timing must be in JSON format.',
+                        alias: 'p',
+                        type: String,
+                    },
+                    {
+                        name: 'enable',
+                        description: 'Whether scheduled scheduling is enabled.',
+                        alias: 'e',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -1113,38 +1136,38 @@ class MyComponent extends Component {
     async schedule_list(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} schedule list [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'limit',
-                            description: 'Limit the number of returns.',
-                            alias: 'l',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'limit',
+                        description: 'Limit the number of returns.',
+                        alias: 'l',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -1190,38 +1213,38 @@ class MyComponent extends Component {
     async schedule_delete(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} schedule delete [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'schedule-mame',
-                            description: 'The name of the scheduled schedule.',
-                            alias: 's',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'schedule-mame',
+                        description: 'The name of the scheduled schedule.',
+                        alias: 's',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -1267,38 +1290,38 @@ class MyComponent extends Component {
     async schedule_get(inputs) {
         const apts = {
             boolean: ['help', 'assumeYes'],
-            alias: {help: 'h', assumeYes: 'y'},
+            alias: { help: 'h', assumeYes: 'y' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data && comParse.data.help) {
             help([{
                 header: 'Usage',
                 content: `s ${inputs.project.projectName} schedule get [args]`
             },
-                {
-                    header: 'Options',
-                    optionList: [
-                        {
-                            name: 'region',
-                            description: 'Stack region.',
-                            alias: 'r',
-                            type: String,
-                        },
-                        {
-                            name: 'name',
-                            description: 'Stack name.',
-                            alias: 'n',
-                            type: String,
-                        },
-                        {
-                            name: 'schedule-mame',
-                            description: 'The name of the scheduled schedule.',
-                            alias: 's',
-                            type: String,
-                        }
-                    ],
-                },]);
+            {
+                header: 'Options',
+                optionList: [
+                    {
+                        name: 'region',
+                        description: 'Stack region.',
+                        alias: 'r',
+                        type: String,
+                    },
+                    {
+                        name: 'name',
+                        description: 'Stack name.',
+                        alias: 'n',
+                        type: String,
+                    },
+                    {
+                        name: 'schedule-mame',
+                        description: 'The name of the scheduled schedule.',
+                        alias: 's',
+                        type: String,
+                    }
+                ],
+            },]);
             return;
         }
 
@@ -1348,9 +1371,9 @@ class MyComponent extends Component {
     async schedule(inputs) {
         const apts = {
             boolean: ['help'],
-            alias: {help: 'h'},
+            alias: { help: 'h' },
         };
-        const comParse = commandParse({args: inputs.args}, apts);
+        const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data._.length > 0) {
             if (comParse.data._[0] == "add") {
@@ -1374,31 +1397,31 @@ class MyComponent extends Component {
                 header: 'Usage',
                 content: `Usage: s ${inputs.project.projectName} schedule [command]`
             },
-                {
-                    header: 'Examples',
-                    content: [
-                        {
-                            desc: 'add',
-                            example: 'Create a scheduled schedule.'
-                        },
-                        {
-                            desc: 'update',
-                            example: 'Update a scheduled schedule.'
-                        },
-                        {
-                            desc: 'list',
-                            example: 'Get scheduled schedule list.'
-                        },
-                        {
-                            desc: 'delete',
-                            example: 'Delete a scheduled schedule.'
-                        },
-                        {
-                            desc: 'get',
-                            example: 'Get a timing schedule.'
-                        }
-                    ],
-                },]);
+            {
+                header: 'Examples',
+                content: [
+                    {
+                        desc: 'add',
+                        example: 'Create a scheduled schedule.'
+                    },
+                    {
+                        desc: 'update',
+                        example: 'Update a scheduled schedule.'
+                    },
+                    {
+                        desc: 'list',
+                        example: 'Get scheduled schedule list.'
+                    },
+                    {
+                        desc: 'delete',
+                        example: 'Delete a scheduled schedule.'
+                    },
+                    {
+                        desc: 'get',
+                        example: 'Get a timing schedule.'
+                    }
+                ],
+            },]);
             return;
         }
     }
