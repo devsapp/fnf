@@ -1,5 +1,5 @@
-version: v1beta1
 type: flow
+version: v1beta1
 steps:
   - type: pass
     name: helloworld
