@@ -1378,19 +1378,19 @@ class MyComponent extends Component {
         const comParse = commandParse({ args: inputs.args }, apts);
         comParse.data = comParse.data || {}
         if (comParse.data._.length > 0) {
-            if (comParse.data._[0] == "add") {
+            if (comParse.data._[1] == "add") {
                 return await this.schedule_add(inputs)
             }
-            if (comParse.data._[0] == "update") {
+            if (comParse.data._[1] == "update") {
                 return await this.schedule_update(inputs)
             }
-            if (comParse.data._[0] == "list") {
+            if (comParse.data._[1] == "list") {
                 return await this.schedule_list(inputs)
             }
-            if (comParse.data._[0] == "delete") {
+            if (comParse.data._[1] == "delete") {
                 return await this.schedule_delete(inputs)
             }
-            if (comParse.data._[0] == "get") {
+            if (comParse.data._[1] == "get") {
                 return await this.schedule_get(inputs)
             }
         }
