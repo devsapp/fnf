@@ -1,4 +1,4 @@
-import { help, commandParse } from '@serverless-devs/core';
+import { help, minimist } from '@serverless-devs/core';
 import FNF_HELP from './help';
 import { FnfFlow } from './impl/flow';
 import { FnfExecution } from './impl/execution';
@@ -10,8 +10,9 @@ class FnfComponent {
       boolean: ['help'],
       alias: { help: 'h' },
     };
-    const comParse = commandParse({ args: inputs.args }, apts) as any;
-    comParse.data = comParse.data || {};
+    const comParse = {
+      data: minimist(inputs.argsObj, apts) as any,
+    };
     if (comParse.data && comParse.data.help) {
       help([
         {
@@ -81,8 +82,9 @@ class FnfComponent {
       boolean: ['help'],
       alias: { help: 'h' },
     };
-    const comParse = commandParse({ args: inputs.args }, apts) as any;
-    comParse.data = comParse.data || {};
+    const comParse = {
+      data: minimist(inputs.argsObj, apts) as any,
+    };
     if (comParse.data._.length > 0) {
       if (comParse.data._[0] == 'start') {
         return await this.execution_start(inputs);
@@ -117,8 +119,9 @@ class FnfComponent {
       boolean: ['help'],
       alias: { help: 'h' },
     };
-    const comParse = commandParse({ args: inputs.args }, apts) as any;
-    comParse.data = comParse.data || {};
+    const comParse = {
+      data: minimist(inputs.argsObj, apts) as any,
+    };
     if (comParse.data._.length > 0) {
       if (comParse.data._[0] == 'add') {
         return await this.schedule_add(inputs);
