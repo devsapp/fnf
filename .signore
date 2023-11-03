@@ -26,3 +26,5 @@ Makefile
 f2elint.config.js
 commitlint.config.js
 docs
+replace-committers.sh
+.husky

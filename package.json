@@ -10,6 +10,7 @@
     "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
     "publish": "npm i && npm run build"
   },
+  "autoInstall": false,
   "dependencies": {
     "@alicloud/pop-core": "^1.7.13",
     "@serverless-devs/core": "^0.1.65"
