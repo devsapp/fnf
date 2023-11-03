@@ -8,8 +8,6 @@ export class FnfSchedule extends FnfBase {
     const client = await this.getClient();
     const region = this.region;
 
-    console.log(comParse.data, '   111111111111111');
-
     const cron = comParse.data.cron || comParse.data.c || undefined;
     const scheduleName = comParse.data.scheduleName || comParse.data.s || undefined;
     const description = comParse.data.description || comParse.data.d || undefined;
