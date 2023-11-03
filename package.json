@@ -1,13 +1,17 @@
 {
   "name": "ServerlessComponent",
   "version": "0.0.5",
-  "main": "./src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "publish": "npm install --production"
+    "build": "esbuild src/index.js --bundle --log-level=error --minify --platform=node --format=cjs --target=node10.4 --external:@serverless-devs/core --external:electron --outfile=dist/index.js"
   },
+  "autoInstall": false,
   "dependencies": {
-    "@serverless-devs/s-core": "^0.0.28",
+    "@alicloud/pop-core": "^1.7.10",
     "@serverless-devs/core": "^0.0.85",
-    "@alicloud/pop-core": "^1.7.10"
+    "@serverless-devs/s-core": "^0.0.28"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.5"
   }
 }

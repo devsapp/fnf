@@ -1,6 +1,5 @@
 .s
 LICENSE
-package-lock.json
 .prettierrc.js
 .prettierignore
 .eslintrc.js
@@ -10,14 +9,15 @@ package-lock.json
 .signore
 jest.config.ts
 jest.setup.ts
-tsconfig.*
+tsconfig.\*
+node_modules
 
 .github
 .idea
 .vscode
 .DS_Store
 .git
-*.md
+\*.md
 
 README.md
 examples

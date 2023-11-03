@@ -6,7 +6,6 @@ const {
     help,
     commandParse,
     load,
-    reportComponent,
 } = require('@serverless-devs/core')
 const Core = require('@alicloud/pop-core');
 const fs = require('fs')
@@ -87,11 +86,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-
-        reportComponent("fnf", {
-            "commands": 'deploy',
-            "uid": credential.AccountID,
-        });
 
         await this.init()
 
@@ -208,10 +202,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-        reportComponent("fnf", {
-            "commands": 'list',
-            "uid": credential.AccountID,
-        });
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
         await this.init()
@@ -287,11 +277,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-
-        reportComponent("fnf", {
-            "commands": 'remove',
-            "uid": credential.AccountID,
-        });
 
         await this.init()
 
@@ -383,11 +368,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-
-        reportComponent("fnf", {
-            "commands": 'execution_start',
-            "uid": credential.AccountID,
-        });
 
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
@@ -498,12 +478,6 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
-        reportComponent("fnf", {
-            "commands": 'execution_stop',
-            "uid": credential.AccountID,
-        });
-
-
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
@@ -594,11 +568,6 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
-        reportComponent("fnf", {
-            "commands": 'execution_get',
-            "uid": credential.AccountID,
-        });
-
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
@@ -673,11 +642,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-
-        reportComponent("fnf", {
-            "commands": 'execution_history',
-            "uid": credential.AccountID,
-        });
 
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
@@ -768,11 +732,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-
-        reportComponent("fnf", {
-            "commands": 'execution_list',
-            "uid": credential.AccountID,
-        });
 
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
@@ -952,11 +911,6 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
-        reportComponent("fnf", {
-            "commands": 'schedule_add',
-            "uid": credential.AccountID,
-        });
-
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
@@ -1076,11 +1030,6 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
-        reportComponent("fnf", {
-            "commands": 'schedule_update',
-            "uid": credential.AccountID,
-        });
-
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
@@ -1176,11 +1125,6 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
-        reportComponent("fnf", {
-            "commands": 'schedule_list',
-            "uid": credential.AccountID,
-        });
-
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
@@ -1253,11 +1197,6 @@ class MyComponent extends Component {
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
 
-        reportComponent("fnf", {
-            "commands": 'schedule_datele',
-            "uid": credential.AccountID,
-        });
-
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
 
@@ -1329,12 +1268,6 @@ class MyComponent extends Component {
 
         // 获取密钥信息
         const credential = await getCredential(inputs.project.access)
-
-        reportComponent("fnf", {
-            "commands": 'schedule_get',
-            "uid": credential.AccountID,
-        });
-
 
         const region = comParse.data.region || comParse.data.r || inputs.props.region || "cn-hangzhou"
         const client = await this.getClient(credential, region)
