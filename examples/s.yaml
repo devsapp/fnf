@@ -1,12 +1,13 @@
 edition: 1.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
 name: fnfApp            #  项目名称
-access: default  #  秘钥别名
+access: xiliu #  秘钥别名
 
 services:
   fnf-test: #  服务名称
-    component: fnf
+    component: ${path(../)}
     props:
-      region: cn-hangzhou
-      name: test
+      region: cn-qingdao
+      name: test-xl2
       description: Description
       definition: ./flow.yaml
+      #endpoint: 'https://staging.cn-hangzhou.fnf.aliyuncs.com'

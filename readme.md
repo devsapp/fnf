@@ -92,10 +92,10 @@ Usage
 
 Options
 
-  -r, --region string           Stack region.                                       
-  -n, --name string             Stack name.                                         
+  -r, --region string           Flow region.                                       
+  -n, --name string             Flow name.                                         
   -d, --definition string       Template path.                                      
-  --description string   Stack description.                                  
+  --description string   Flow description.                                  
   --type string                 The type of the creation process. The value is FDL. 
 ```
 
@@ -104,7 +104,7 @@ Options
 
 ## Remove
 
-移除一个FNF：
+移除一个FNF Flow：
 
 ```
 Usage
@@ -113,8 +113,26 @@ Usage
 
 Options
 
-  -r, --region string   Stack region. 
-  -n, --name string     Stack name.
+  -r, --region string   Flow region. 
+  -n, --name string     Flow name.
+```
+
+如果是通过`s.yaml`进行使用：`s remove`   
+如果通过纯命令行：`s cli fnf remove`
+
+## Info
+
+显示一个 FNF Flow 的元信息：
+
+```
+Usage
+
+  s info [command] 
+
+Options
+
+  -r, --region string   Flow region. 
+  -n, --name string     Flow name.
 ```
 
 如果是通过`s.yaml`进行使用：`s remove`   
@@ -131,7 +149,7 @@ Usage
 
 Options
 
-  -r, --region string   Stack region. 
+  -r, --region string   Flow region. 
 ```
 
 使用方法：
