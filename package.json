@@ -5,23 +5,27 @@
   "scripts": {
     "prepare": "husky install",
     "format": "prettier --write src/",
+    "prebuild": "rimraf dist && mkdir -p dist && npm i",
     "watch": "tsc -w",
     "start": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js --watch",
     "build": "esbuild src/index.ts --bundle --log-level=error --external:proxy-agent --minify --platform=node --format=cjs --target=node10 --outfile=dist/index.js",
-    "publish": "npm i && npm run build"
+    "publish": "npm i && npm run build && s registry publish"
   },
   "autoInstall": false,
   "dependencies": {
-    "@alicloud/pop-core": "^1.7.13",
-    "@serverless-devs/core": "^0.1.65"
+    "@alicloud/fnf20190315": "^1.1.2",
+    "@serverless-devs/utils": "^0.0.14",
+    "inquirer": "^8.2.6",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.197",
     "@types/node": "^14.0.23",
+    "esbuild": "^0.19.5",
     "husky": "^8.0.1",
     "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
     "ts-node": "^8.10.2",
-    "typescript": "^4.4.2",
-    "esbuild": "^0.19.5"
+    "typescript": "^4.4.2"
   }
 }
