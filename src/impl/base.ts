@@ -27,6 +27,7 @@ export default class FnfBase {
       'cn-shenzhen',
       'ap-southeast-1',
       'us-west-1',
+      'cn-heyuan-acdr-1',
     ];
     if (!validRegions.includes(this.region)) {
       throw new Error(`region is must be in ${JSON.stringify(validRegions)}`);
