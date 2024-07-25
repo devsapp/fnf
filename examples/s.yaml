@@ -8,5 +8,17 @@ resources:
     props:
       region: cn-qingdao
       name: test-xl2
+      definition: 
+        type: flow
+        version: v1beta1
+        steps:
+          - type: pass
+            name: helloworld
+      description: Description
+  fnf-test2:
+    component: ${path("../")}
+    props:
+      region: cn-qingdao
+      name: test-xl3
       definition: ./flow.yaml
       description: Description

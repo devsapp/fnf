@@ -9,8 +9,13 @@ export class FnfFlow extends FnfBase {
     const client = await this.getClient('deploy');
     const inputs = this.inputs;
     const name = this.argsObj.name || inputs.props.name;
-    const definitionFilePath = this.argsObj.definition || inputs.props.definition;
-    const definition = fs.readFileSync(definitionFilePath, 'utf-8');
+    const definitionOpts = this.argsObj.definition || inputs.props.definition;
+    let definition;
+    if (typeof definitionOpts === 'string') {
+      definition = fs.readFileSync(definitionOpts, 'utf-8');
+    } else {
+      definition = definitionOpts;
+    }
     const description =
       this.argsObj.description || inputs.props.description || 'Created By Serverless Devs';
     const type = this.argsObj.type || inputs.props.type || 'FDL';
