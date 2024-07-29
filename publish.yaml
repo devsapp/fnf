@@ -3,7 +3,7 @@ Type: Component
 Name: flow
 Provider:
   - 阿里云
-Version: 0.0.3
+Version: 0.0.4
 Description: 快速部署阿里云 FNF（Serverless Workflow） 项目
 HomePage: https://github.com/devsapp/fnf
 Organization: 阿里云函数计算（FC）

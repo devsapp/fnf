@@ -14,7 +14,7 @@ export class FnfFlow extends FnfBase {
     if (typeof definitionOpts === 'string') {
       definition = fs.readFileSync(definitionOpts, 'utf-8');
     } else {
-      definition = definitionOpts;
+      definition = JSON.stringify(definitionOpts);
     }
     const description =
       this.argsObj.description || inputs.props.description || 'Created By Serverless Devs';
