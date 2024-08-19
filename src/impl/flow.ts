@@ -105,30 +105,37 @@ export class FnfFlow extends FnfBase {
 
   async forceDeleteFlow(name: string) {
     const log = GLogger.getLogger();
-    const client = await this.getClient('remove');
-    let listSchedulesRequest = new $fnf20190315.ListSchedulesRequest({
-      flowName: name,
-      limit: 1000,
-    });
-    const resp = await client.listSchedules(listSchedulesRequest);
-    const schedules = resp.body.toMap()['Schedules'];
-    if (schedules && schedules.length > 0) {
-      for (let i = 0; i < schedules.length; i++) {
-        const scheduleName = schedules[i]['ScheduleName'];
-        let deleteScheduleRequest = new $fnf20190315.DeleteScheduleRequest({
-          flowName: name,
-          scheduleName,
-        });
-        log.write(`Remove cloud flow schedule: ${this.region}/${name}/${scheduleName}`);
-        await client.deleteSchedule(deleteScheduleRequest);
+    try {
+      const client = await this.getClient('remove');
+      let listSchedulesRequest = new $fnf20190315.ListSchedulesRequest({
+        flowName: name,
+        limit: 1000,
+      });
+      const resp = await client.listSchedules(listSchedulesRequest);
+      const schedules = resp.body.toMap()['Schedules'];
+      if (schedules && schedules.length > 0) {
+        for (let i = 0; i < schedules.length; i++) {
+          const scheduleName = schedules[i]['ScheduleName'];
+          let deleteScheduleRequest = new $fnf20190315.DeleteScheduleRequest({
+            flowName: name,
+            scheduleName,
+          });
+          log.write(`Remove cloud flow schedule: ${this.region}/${name}/${scheduleName}`);
+          await client.deleteSchedule(deleteScheduleRequest);
+        }
+      }
+      log.write(`Remove cloud flow: ${this.region}/${name}`);
+      let deleteFlowRequest = new $fnf20190315.DeleteFlowRequest({
+        name,
+      });
+      await client.deleteFlow(deleteFlowRequest);
+      log.debug(`delete cloud flow: ${this.region}/${name} success`);
+    } catch (error) {
+      log.error(`delete custom domain error: ${error}  ${error.statusCode}`);
+      if (error.code !== 'FlowNotExists' || error.statusCode !== 404) {
+        throw error;
       }
     }
-    log.write(`Remove cloud flow: ${this.region}/${name}`);
-    let deleteFlowRequest = new $fnf20190315.DeleteFlowRequest({
-      name,
-    });
-    await client.deleteFlow(deleteFlowRequest);
-    log.debug(`delete cloud flow: ${this.region}/${name} success`);
   }
 
   async list() {
