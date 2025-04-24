@@ -28,9 +28,13 @@ export default class FnfBase {
       'ap-southeast-1',
       'us-west-1',
       'cn-heyuan-acdr-1',
+      'pre-hangzhou',
     ];
     if (!validRegions.includes(this.region)) {
       throw new Error(`region is must be in ${JSON.stringify(validRegions)}`);
+    }
+    if (this.region === 'pre-hangzhou' && !(this.argsObj.endpoint || this.inputs.props.endpoint)) {
+      throw new Error(`endpoint is required when region is pre-hangzhou`);
     }
     const log = GLogger.getLogger();
     log.debug(`inputs=${JSON.stringify(this.inputs)}`);
