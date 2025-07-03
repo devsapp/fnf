@@ -23,7 +23,12 @@ export class FnfFlow extends FnfBase {
     const roleArn = this.argsObj.roleArn || inputs.props.roleArn;
 
     const log = GLogger.getLogger();
-    log.debug(`Start deploy workflow ${name} ...`);
+    log.info(`userAgent: ${inputs.userAgent}`);
+    if (process.env.BUILD_IMAGE_ENV === 'fc-backend') {
+      log.info(`deploy ==> input : \n${JSON.stringify(inputs)}\n`);
+    } else {
+      log.debug(`deploy ==> input : \n${JSON.stringify(inputs)}\n`);
+    }
     let result: any = {
       region: this.region,
     };
@@ -33,8 +38,17 @@ export class FnfFlow extends FnfBase {
         name,
       });
       let flowInfo = await client.describeFlow(describeFlowRequest);
-      log.debug(`Get flow definition: ${JSON.stringify(flowInfo)}`);
-      log.debug(`Update workflow ${name} ... `);
+      log.debug(`Get flow info: ${JSON.stringify(flowInfo)}`);
+      const flowBody = flowInfo.body.toMap();
+      if (flowBody['ExecutionMode'] != executionMode) {
+        log.error(
+          `Fail to update workflow ${name} executionMode from ${flowBody['ExecutionMode']} to ${executionMode}`,
+        );
+        throw new Error(
+          `Fail to update workflow ${name} executionMode from ${flowBody['ExecutionMode']} to ${executionMode}`,
+        );
+      }
+      log.info(`Update workflow ${name} ... `);
       let updateFlowRequest = new $fnf20190315.UpdateFlowRequest({
         name,
         definition,
@@ -49,7 +63,7 @@ export class FnfFlow extends FnfBase {
     } catch (e) {
       log.debug(String(e));
       if (String(e).includes(`Flow '${name}' does not exist`)) {
-        log.debug(`Create workflow ${name} ... `);
+        log.info(`Create workflow ${name} ... `);
         let createFlowRequest = new $fnf20190315.CreateFlowRequest({
           name,
           definition,
